@@ -1,31 +1,31 @@
-import { Grid, Card, Button, Container,Text, Image } from "@nextui-org/react";
+import { Grid, Card, Button, Container, Text, Image } from "@nextui-org/react";
 import confetti from "canvas-confetti";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { FC, useState } from "react";
 import pokeAPi from "../../api/pokeApi";
 import { Layout } from "../../components/layouts";
-import {PokemonDetail, PokemonListResponse} from '../../interfaces'
+import { PokemonDetail, PokemonListResponse } from "../../interfaces";
 import { localFavorites } from "../../utils";
-interface Props{
-    pokemon: PokemonDetail
+interface Props {
+  pokemon: PokemonDetail;
 }
 
-export const PokemonByName:FC<Props> = ({pokemon}) => {
+export const PokemonByName: FC<Props> = ({ pokemon }) => {
+  const [isFavorite, setIsFavorite] = useState(
+    localFavorites.isInFavorites(pokemon.id)
+  );
 
-     const [isFavorite, setIsFavorite] = useState( localFavorites.isInFavorites(pokemon.id)
-     );
-
-     const onToggleFavorite = () => {
-       localFavorites.toggleFavorite(pokemon.id);
-       setIsFavorite(!isFavorite);
-       if (isFavorite) return;
-       confetti({
-         particleCount: 100,
-         spread: 100,
-         origin: { x: 1, y: 0 },
-         angle: -100,
-       });
-     };
+  const onToggleFavorite = () => {
+    localFavorites.toggleFavorite(pokemon.id);
+    setIsFavorite(!isFavorite);
+    if (isFavorite) return;
+    confetti({
+      particleCount: 100,
+      spread: 100,
+      origin: { x: 1, y: 0 },
+      angle: -100,
+    });
+  };
 
   return (
     <Layout title={pokemon.name}>
@@ -87,21 +87,40 @@ export const PokemonByName:FC<Props> = ({pokemon}) => {
       </Grid.Container>
     </Layout>
   );
-}
+};
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-    const response = await pokeAPi.get<PokemonListResponse>('/pokemon?limit=151');
-    const allNames = response.data.results.map((pokemon)=>pokemon.name)
+  const response = await pokeAPi.get<PokemonListResponse>("/pokemon?limit=151");
+  const allNames = response.data.results.map((pokemon) => pokemon.name);
   return {
-    paths:allNames.map(name=>({params:{name}}))  ,
-    fallback: false,
+    paths: allNames.map((name) => ({ params: { name } })),
+    fallback: "blocking",
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-    const {name} = params as {name:string}
-    const responsePokemon = await pokeAPi.get<PokemonDetail>(`/pokemon/${name}`)
-  return {
-    props: { pokemon: responsePokemon.data },
-  };
+  try {
+    const { name } = params as { name: string };
+    const responsePokemon = await pokeAPi.get<PokemonDetail>(
+      `/pokemon/${name}`
+    );
+    if (!responsePokemon.data) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+    return {
+      props: { pokemon: responsePokemon.data },
+    };
+  } catch (error) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };
-export default PokemonByName
+export default PokemonByName;
