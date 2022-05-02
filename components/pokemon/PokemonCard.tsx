@@ -7,7 +7,7 @@ import { Pokemon } from "../../interfaces";
 export const PokemonCard:FC<Pokemon> = ({ id, image, name}) => {
   const router =useRouter()
   const onClickPokemon = () =>{
-    router.push(`/${id}`)
+    router.push(`/pokemon/${id}`)
     }
   return (
     <Grid xs={6} sm={3} md={2} xl={1} key={id} onClick={onClickPokemon} >

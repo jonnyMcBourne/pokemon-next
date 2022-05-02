@@ -1,17 +1,31 @@
+import { FC, useState } from "react";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { Button, Card, Grid, Text,Container, Image } from '@nextui-org/react'
-import { GetStaticPaths } from 'next'
-import type { GetStaticProps } from "next";
-import { FC } from "react";
-import { Layout } from "../components/layouts";
-import { pokeApi } from "../api";
-import { PokemonDetail } from "../interfaces";
-import { useRouter } from 'next/router';
+import confetti from 'canvas-confetti';
+import { Layout } from "../../components/layouts";
+import { pokeApi } from "../../api";
+import { PokemonDetail } from "../../interfaces";
+import { localFavorites } from '../../utils';
+
 interface Props{
     pokemon:PokemonDetail
 }
 const PokemonPage:FC<Props> = ({pokemon}) => {
-    const router = useRouter()
-  return ( 
+
+    const [isFavorite, setIsFavorite] = useState(localFavorites.isInFavorites(pokemon.id))
+    const onToggleFavorite = () => {
+      localFavorites.toggleFavorite(pokemon.id);
+      setIsFavorite(!isFavorite);
+      if (isFavorite) return;
+   confetti({
+     particleCount: 100,
+     spread: 100,
+     origin: { x:1, y:0 },
+     angle:-100
+   });
+    };
+   
+  return (
     <Layout title={pokemon.name}>
       <Grid.Container css={{ margin: "5px" }} gap={2}>
         <Grid xs={12} sm={4}>
@@ -36,16 +50,15 @@ const PokemonPage:FC<Props> = ({pokemon}) => {
             >
               <Text h1>{pokemon.name}</Text>
               <Button 
-                color="gradient"
-                ghost
-                 onClick={()=>router.push('/favorites')}
-              >
-                save on favs
+              color="gradient" 
+              ghost = {isFavorite} 
+              onClick={onToggleFavorite}>
+                {isFavorite? 'remove of favorites':'add to favorites' }
               </Button>
             </Card.Header>
             <Card.Body>
               <Text size={30}>Sprites:</Text>
-              <Container display='flex' direction='row' gap={0} >
+              <Container display="flex" direction="row" gap={0}>
                 <Image
                   src={pokemon.sprites.front_default}
                   alt={pokemon.name}

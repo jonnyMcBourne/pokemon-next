@@ -1,7 +1,7 @@
 import { pokeApi } from "../api";
 import type { NextPage, GetStaticProps } from "next";
 import { Layout } from "../components/layouts";
-import { PokemonListResponse, Pokemon, PokemonDetail } from "../interfaces";
+import { PokemonListResponse, Pokemon} from "../interfaces";
 import { Grid } from "@nextui-org/react";
 import PokemonCard from "../components/pokemon/PokemonCard";
 

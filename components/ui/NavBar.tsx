@@ -1,6 +1,7 @@
 import NextLink from 'next/link'
 import { useTheme, Text,Spacer, Link } from "@nextui-org/react"
 import Image from "next/image";
+
 const NavBar = () => {
   const { theme, isDark } = useTheme();
   return (
